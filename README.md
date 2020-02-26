@@ -11,6 +11,11 @@ You could just change the default _Big Buck Bunny_ video to your own, as long as
 
 Have fun ;)
 
+#### Demo
+
+Live browser demo can be checked in the [Github Pages](https://pahefu.github.io/web-glitch-this/).
+
+
 #### Special parameters
 
 The **ImageGlitcher** methods expect a Javascript object as:
