@@ -1,0 +1,102 @@
+<!-- Web Javascript version of Glitch-This by Pahefu -->
+
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>Glitch-This Web Version</title>
+
+    <script src="glitch_this.js"></script>
+    <script src="functions.js"></script>
+
+    <script>
+        window.onload = function(){
+            var imgP = new ImageParser();
+            imgP.initVideoRendering();
+        }
+    </script>
+
+    <style>
+
+        #attribution{
+            padding:5px;
+            margin:5px;
+        }
+
+        #attrDesc{
+            font-weight:bold;
+        }
+
+        #container{
+            display:flex;
+            flex-direction: row;
+            flex-grow: 1;
+        }
+
+        #sourceContent, #glitchedContent{
+            width:50%;
+            padding:5px;
+        }
+
+        #sourceContent video{
+            width: 100%;
+        }
+
+        #glitchedContent canvas{
+            width: 100%;
+        }
+
+        .contentTitle{
+            color: #555555;
+            font-size: 1.25em;
+            font-weight: bold;
+            padding: 5px;
+            border: 1px solid#dadada;
+            border-radius: 6px 6px 0px 0px;
+        }
+        
+        #glitchSettings{
+            padding: 5px; 
+            border: 1px solid #777777;  
+            border-radius: 0px 0px 6px 6px;
+        }
+
+        #glitchSettings div+div{
+            margin-top: 8px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    
+    <div id="attribution">
+        <div id="attrDesc">Web version of Glitch-This</div>
+        <small>Ported from <a target="blank" href="https://github.com/TotallyNotChase/glitch-this" id="attrLink">Glitch-This</a></small>
+    </div>
+
+    <div id="container">
+        <div id="sourceContent">
+            <div class="contentTitle">Source Video</div>
+            <video id="video" crossorigin="anonymous" controls loop>
+                <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+            </video>
+
+            <div id="glitchSettings">
+                <div><label>Change the video:</label> <input type="file" id="customFile"></div>
+                <div><label>Glitch amount</label> <input type="number" id="glitchAmount" name="glitchAmount" min="2" max="10" value="2"></div>
+                <div><label>Glitch colors</label> <input type="checkbox" id="glitchColors" name="glitchColors" checked></div>
+                <div><label>Scan Lines</label> <input type="checkbox" id="scanLines" name="scanLines" checked></div>
+            </div>
+        </div>
+
+        <div id="glitchedContent">
+            <div class="contentTitle">Glitched Canvas</div>
+            <canvas id="canvasB"></canvas>
+        </div>
+    </div>  
+</body>
+
+</html>
