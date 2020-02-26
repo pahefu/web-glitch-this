@@ -18,7 +18,8 @@ class ImageParser{
         this.ctx_b = this.canvasB.getContext("2d");
         
         this.video = document.getElementById('video');
-        
+        this.sourceImage = document.getElementById('image');
+
         // Glitch properties
         this.glitcher = new ImageGlitcher();
         this.glitchScanlines = true;
@@ -40,18 +41,52 @@ class ImageParser{
         this.domGlitchColors.addEventListener('change', window.ImageParser.syncSettings);
         this.domGlitchScanLines.addEventListener('change', window.ImageParser.syncSettings);
 
-        this.filesInput = document.getElementById("customFile");
-        this.filesInput.addEventListener('change', function (e) {
-    
-            // go through all selected files
+        this.videoInput = document.getElementById("customVideo");
+        this.videoInput.addEventListener('change', function (e) {
             for (const file of Array.from(this.files)) {   
-                video.src = URL.createObjectURL(file);
-
+                window.ImageParser.video.src = URL.createObjectURL(file);
                 window.ImageParser.adjustCanvasSize(video.clientWidth, video.clientHeight);
-
                 break;
             };
-        }, false /* don't capture */);
+        }, false);
+
+        this.imageInput = document.getElementById("customImage");
+        this.imageInput.addEventListener('change', function (e) {
+            for (const file of Array.from(this.files)) {                 
+                window.ImageParser.loadImageByUrl(URL.createObjectURL(file));
+                break;
+            };
+        }, false);
+
+        this.manualGlitchButton = document.getElementById("reapplyGlitchBtn");
+        this.manualGlitchButton.addEventListener('click', function() {
+            window.ImageParser.processImageFrame();
+        });
+
+        this.downloadBtn = document.getElementById("downloadBtn");
+        this.downloadBtn.addEventListener('click', function() {
+            window.ImageParser.downloadGlitchedImage();
+        });
+
+        this.selectors = document.getElementsByClassName("sourceSelector");
+        for(var s of this.selectors){
+            s.addEventListener('click', function(e){
+                var imgP = window.ImageParser;
+                var rel = e.target.getAttribute("rel");
+                for(var s of imgP.selectors){
+                    s.className = "sourceSelector";
+                    let localRel = s.getAttribute("rel");
+                    if(rel == localRel){
+                        s.className+=" active";
+                    }                   
+                    document.getElementById(localRel).className = "hidden";
+                }
+                document.getElementById(rel).className = "";
+                
+
+            });
+        }
+        
 
     }
 
@@ -68,33 +103,46 @@ class ImageParser{
         pThis.canvasA.height = h;
         pThis.canvasB.width = w;
         pThis.canvasB.height = h;
-        
         pThis.ctx_b.fillStyle = "black";
         pThis.ctx_b.fillRect(0, 0, w,h);
     }
 
-    loadImageByName(name){
-        var domImage = document.createElement("img");
-        var parent = this;
-        
-        domImage.onload = function(ev){          
-            // Set the canvas values to match the image source dimensions
-
-            window.ImageParser.adjustCanvasSize(this.width, this.height);
-
-            parent.ctx_a.drawImage(this,0,0);
-            parent.ctx_b.drawImage(this,0,0);
-
-            parent.image_data.width = this.width;
-            parent.image_data.height = this.height;
-            parent.image_data.input = parent.ctx_a.getImageData(0,0, this.width,this.height);
-            parent.image_data.output = parent.ctx_b.getImageData(0,0, this.width,this.height);
-
-            // do the glitch processing
-            parent.glitcher.glitch_image(parent.image_data, parent.glitchAmount, parent.glitchColors, parent.glitchScanlines, false, 0);
-            parent.ctx_b.putImageData(parent.image_data.output, 0, 0);
+    loadImageByUrl(url){
+        var imgP = window.ImageParser;
+        imgP.sourceImage.onload = function(ev){          
+            // Set the canvas values to match the image source dimensions           
+            imgP.processImageFrame();
         }
-        domImage.src = name;
+        imgP.sourceImage.src = url;
+    }
+
+    processImageFrame(){
+        var imgP = window.ImageParser;
+
+        var w = imgP.sourceImage.naturalWidth;
+        var h = imgP.sourceImage.naturalHeight;
+
+        imgP.adjustCanvasSize(w,h);
+
+        imgP.ctx_a.drawImage(imgP.sourceImage,0,0);
+        imgP.ctx_b.drawImage(imgP.sourceImage,0,0);
+        imgP.image_data.width = w;
+        imgP.image_data.height = h;
+        imgP.image_data.input = imgP.ctx_a.getImageData(0,0, w,h);
+        imgP.image_data.output = imgP.ctx_b.getImageData(0,0, w,h);
+
+        // do the glitch processing
+        imgP.glitcher.glitch_image(imgP.image_data, imgP.glitchAmount, imgP.glitchColors, imgP.glitchScanlines, false, 0);
+        imgP.ctx_b.putImageData(imgP.image_data.output, 0, 0);
+    }
+
+    downloadGlitchedImage(){
+        var imgP = window.ImageParser;
+        let image = imgP.canvasB.toDataURL("image/png", 1.0).replace("image/png", "image/octet-stream");
+        var link = document.createElement('a');
+        link.download = "web_glitched.png";
+        link.href = image;
+        link.click();
     }
 
     initVideoRendering(){

@@ -18,6 +18,15 @@
 
     <style>
 
+        .hidden{
+            display:none;
+        }
+
+        .active{
+            background-color: #dadada;
+            padding: 5px;
+        }
+
         #attribution{
             padding:5px;
             margin:5px;
@@ -33,12 +42,32 @@
             flex-grow: 1;
         }
 
+        .sourceSelector{
+            cursor:pointer;
+        }
+
+        .sourceControls{
+            padding: 5px;
+            border-left: 1px solid #777777;
+            border-right: 1px solid #777777;
+        }
+
+        .sourceControls div+div{
+            margin-top: 8px;
+        }
+
+        
+
         #sourceContent, #glitchedContent{
             width:50%;
             padding:5px;
         }
 
         #sourceContent video{
+            width: 100%;
+        }
+
+        #sourceContent img{
             width: 100%;
         }
 
@@ -50,12 +79,12 @@
             color: #555555;
             font-size: 1.25em;
             font-weight: bold;
-            padding: 5px;
+            padding: 4px 5px 5px 0px;
             border: 1px solid#dadada;
             border-radius: 6px 6px 0px 0px;
         }
         
-        #glitchSettings{
+        #glitchSettings, #glitchDownload{
             padding: 5px; 
             border: 1px solid #777777;  
             border-radius: 0px 0px 6px 6px;
@@ -63,6 +92,12 @@
 
         #glitchSettings div+div{
             margin-top: 8px;
+        }
+
+        button{
+            padding:5px;
+            margin-left:5px;
+            border-radius:4px;
         }
 
     </style>
@@ -79,22 +114,44 @@
 
     <div id="container">
         <div id="sourceContent">
-            <div class="contentTitle">Source Video</div>
-            <video id="video" crossorigin="anonymous" controls loop>
-                <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-            </video>
+            <div class="contentTitle">
+                <span class="sourceSelector active" rel="videoContent">Source Video</span>
+                <span>&nbsp;|&nbsp;</span>
+                <span class="sourceSelector" rel="imageSource">Source Image</span>
+            </div>
+
+            <div id="videoContent">   
+                <video id="video" crossorigin="anonymous" controls loop>
+                    <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                </video>
+                <div class="sourceControls">
+                    <div><label>Change the video:</label> <input type="file" id="customVideo"></div>
+                </div>
+            </div>
+
+            <div id="imageSource" class="hidden">
+                <div><img src="./img/viacom.png" alt="Source image" id="image"></div>
+                <div class="sourceControls">
+                    <div><label>Change the image:</label> <input type="file" id="customImage"></div>
+                    <div><label>Re-apply Glitch</label><button id="reapplyGlitchBtn">Re-apply</button></div>
+                </div>
+            </div>
+
 
             <div id="glitchSettings">
-                <div><label>Change the video:</label> <input type="file" id="customFile"></div>
                 <div><label>Glitch amount</label> <input type="number" id="glitchAmount" name="glitchAmount" min="2" max="10" value="2"></div>
                 <div><label>Glitch colors</label> <input type="checkbox" id="glitchColors" name="glitchColors" checked></div>
                 <div><label>Scan Lines</label> <input type="checkbox" id="scanLines" name="scanLines" checked></div>
             </div>
+
         </div>
 
         <div id="glitchedContent">
             <div class="contentTitle">Glitched Canvas</div>
             <canvas id="canvasB"></canvas>
+            <div id="glitchDownload">
+                <div><label>Download the image</label><button id="downloadBtn">Download</button></div>
+            </div>
         </div>
     </div>  
 </body>
