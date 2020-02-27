@@ -9,6 +9,7 @@ I just though it was fun to have it applied to an HTML5 video object , so the gl
 
 You could just change the default _Big Buck Bunny_ video to your own, as long as it is browser-valid, and change the glitch values on the fly.
 
+
 Have fun ;)
 
 #### Demo

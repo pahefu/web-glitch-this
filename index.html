@@ -9,6 +9,11 @@
     <script src="glitch_this.js"></script>
     <script src="functions.js"></script>
 
+    <!-- Gif encoding -->
+    <script type="text/javascript" src="LZWEncoder.js"></script>
+    <script type="text/javascript" src="NeuQuant.js"></script>
+    <script type="text/javascript" src="GIFEncoder.js"></script>
+
     <script>
         window.onload = function(){
             var imgP = new ImageParser();
@@ -134,6 +139,12 @@
                 <div class="sourceControls">
                     <div><label>Change the image:</label> <input type="file" id="customImage"></div>
                     <div><label>Re-apply Glitch</label><button id="reapplyGlitchBtn">Re-apply</button></div>
+                    <div><label>Gif frames</label> <input type="number" id="gifFrames" name="gifFrames" min="2" max="100" value="2"></div>
+                    <div><label>Gif interframe ms delay</label> <input type="number" id="gifFrameDelay" name="gifFrameDelay" min="1" max="10000" value="200"></div>
+                    <div>
+                        <label>Generate a gif image</label><button id="generateGifBtn">Generate GIF</button> 
+                        <div id="gifLinkContainer"></div>
+                    </div>
                 </div>
             </div>
 

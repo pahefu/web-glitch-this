@@ -6,6 +6,26 @@ Also, per-frame glitching on video
 
 */
 
+
+function encode64(input) {
+	var output = "", i = 0, l = input.length,
+	key = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", 
+	chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+	while (i < l) {
+		chr1 = input.charCodeAt(i++);
+		chr2 = input.charCodeAt(i++);
+		chr3 = input.charCodeAt(i++);
+		enc1 = chr1 >> 2;
+		enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+		enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+		enc4 = chr3 & 63;
+		if (isNaN(chr2)) enc3 = enc4 = 64;
+		else if (isNaN(chr3)) enc4 = 64;
+		output = output + key.charAt(enc1) + key.charAt(enc2) + key.charAt(enc3) + key.charAt(enc4);
+	}
+	return output;
+}
+
 class ImageParser{
 
     constructor(){
@@ -25,6 +45,9 @@ class ImageParser{
         this.glitchScanlines = true;
         this.glitchColors = true;
         this.glitchAmount = 2;
+
+        this.gifFrames = 2;
+        this.gifFrameDelay = 200;
         
         this.image_data = {
             input : null, output:null,
@@ -35,11 +58,19 @@ class ImageParser{
         this.domGlitchAmount = document.getElementById("glitchAmount");
         this.domGlitchColors = document.getElementById("glitchColors");
         this.domGlitchScanLines = document.getElementById("scanLines");
+        this.domGifFrames = document.getElementById("gifFrames");
+        this.domGifFrameDelay = document.getElementById("gifFrameDelay");
+
 
         this.domGlitchAmount.addEventListener('change', window.ImageParser.syncSettings);
         this.domGlitchAmount.addEventListener('update', window.ImageParser.syncSettings);
         this.domGlitchColors.addEventListener('change', window.ImageParser.syncSettings);
         this.domGlitchScanLines.addEventListener('change', window.ImageParser.syncSettings);
+
+        this.domGifFrames.addEventListener('change', window.ImageParser.syncSettings);
+        this.domGifFrames.addEventListener('update', window.ImageParser.syncSettings);
+        this.domGifFrameDelay.addEventListener('change', window.ImageParser.syncSettings);
+        this.domGifFrameDelay.addEventListener('update', window.ImageParser.syncSettings);
 
         this.videoInput = document.getElementById("customVideo");
         this.videoInput.addEventListener('change', function (e) {
@@ -66,6 +97,16 @@ class ImageParser{
         this.downloadBtn = document.getElementById("downloadBtn");
         this.downloadBtn.addEventListener('click', function() {
             window.ImageParser.downloadGlitchedImage();
+        });
+
+        this.generateGifBtn = document.getElementById("generateGifBtn");
+        this.generateGifBtn.addEventListener('click', function(e){
+            let gifLinkContainer = document.getElementById("gifLinkContainer");
+            gifLinkContainer.innerHTML = "Processing GIF frames";
+            setTimeout(function(e){
+                window.ImageParser.generateGlitchGifImage();
+            },100);
+            
         });
 
         this.selectors = document.getElementsByClassName("sourceSelector");
@@ -95,6 +136,9 @@ class ImageParser{
         pThis.glitchAmount = pThis.domGlitchAmount.value;
         pThis.glitchColors = pThis.domGlitchColors.checked ;
         pThis.glitchScanlines = pThis.domGlitchScanLines.checked;
+
+        pThis.gifFrames = pThis.domGifFrames.value;
+        pThis.gifFrameDelay = pThis.domGifFrameDelay.value;
     }
 
     adjustCanvasSize(w,h){
@@ -134,6 +178,37 @@ class ImageParser{
         // do the glitch processing
         imgP.glitcher.glitch_image(imgP.image_data, imgP.glitchAmount, imgP.glitchColors, imgP.glitchScanlines, false, 0);
         imgP.ctx_b.putImageData(imgP.image_data.output, 0, 0);
+    }
+
+    generateGlitchGifImage(){
+        var imgP = window.ImageParser;
+  
+        let gifLinkContainer = document.getElementById("gifLinkContainer");
+        
+        var encoder = new GIFEncoder();
+        encoder.setRepeat(0); 
+        encoder.setDelay(imgP.gifFrameDelay); //go to next frame every n milliseconds
+        encoder.start();
+        
+        for(var i = 0;i<imgP.gifFrames;i++){
+            imgP.processImageFrame();
+            encoder.addFrame(imgP.ctx_b);
+        }
+        encoder.finish();
+        
+        var binary_gif = encoder.stream().getData();
+        var base64String =encode64(binary_gif);
+      
+        var newLink = document.createElement("a");
+        newLink.className = "gifLink";
+        newLink.innerHTML = "View GIF";
+        newLink.href = "data:image/gif;base64,"+base64String;
+        newLink.target = "_blank";
+
+        gifLinkContainer.innerHTML = "";
+        gifLinkContainer.appendChild(newLink);
+
+
     }
 
     downloadGlitchedImage(){
